@@ -13,16 +13,14 @@ exports.postAddProduct = (req, res) => {
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  const product = new Product(title, imageUrl, description, price);
+  const product = new Product(null, title, imageUrl, description, price);
   product.save();
   res.redirect('/');
 };
 
 exports.getEditProduct = (req, res) => {
-  const editMode = req.query.edit;
   const prodId = req.params.productId;
   Product.findById(prodId, product => {
-    console.log(product);
     res.render('admin/edit-product', {
       pageTitle: 'Edit Product',
       path: '/admin/edit-product',
@@ -33,22 +31,22 @@ exports.getEditProduct = (req, res) => {
 };
 
 exports.postEditProduct = (req, res) => {
-  const id = req.params.productId;
+  const id = req.body.id;
   const title = req.body.title;
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  Product.fetchAll(products => {
-    if(products){
-      // const productIndex = products.find(p => p.id === )
-    }
-  });
+  const product = new Product(id, title,imageUrl,description, price);
 
   product.save();
   res.redirect('/');
 };
 
-
+exports.getDeleteProduct = (req, res) =>{
+  Product.findById(prodId, product => {
+      product.delete();
+  });
+}
 exports.getProducts = (req, res) => {
   Product.fetchAll(products => {
     res.render('admin/products', {

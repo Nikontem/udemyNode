@@ -20,12 +20,11 @@ module.exports = class Cart {
             }
             const existingProductIndex = cart.products.findIndex(prod => prod.id === id);
             const existingProduct= cart.products[existingProductIndex];
-            console.log( cart.products[existingProductIndex]);
             let updatedProduct;
             if(existingProduct){
                 updatedProduct = {...existingProduct};
                 updatedProduct.qty +=1;
-                console.log(updatedProduct);
+
                 cart.products = [...cart.products];
                 cart.products[existingProductIndex] = updatedProduct;
             }else{
@@ -40,6 +39,13 @@ module.exports = class Cart {
                 if(err) console.error(err);
             })
         })
+    }
 
+    static deleteProduct(id, productPrice){
+        fs.readFile(p, (err, fileContent) => {
+            if(err){
+                return;
+            }
+        })
     }
 }
