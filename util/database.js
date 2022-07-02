@@ -6,14 +6,26 @@ const MongoClient = mongodb.MongoClient;
 const username = process.env.DB_USER;
 const pass = process.env.DB_PASSWORD;
 const db = process.env.DB_DATABASE;
+
+let _db;
 const MongoConnect = (callback) => {
 
-    MongoClient.connect(`mongodb+srv://${username}:${pass}@${db}.nx26p.mongodb.net/?retryWrites=true&w=majority`)
-        .then(result => {
+    MongoClient.connect(
+        `mongodb+srv://${username}:${pass}@${db}.nx26p.mongodb.net/shop?retryWrites=true&w=majority`)
+        .then(client => {
             console.log('Connected');
-            callback(result);
+            _db=client.db()
+            callback();
         })
         .catch(err => console.error(err));
 }
 
-module.exports = MongoConnect;
+const getDb = () =>{
+    if (_db){
+        return _db;
+    }
+    throw 'No Database found';
+}
+
+exports.mongoConnect = MongoConnect;
+exports.getDb =getDb;
