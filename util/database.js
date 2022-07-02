@@ -13,7 +13,6 @@ const MongoConnect = (callback) => {
     MongoClient.connect(
         `mongodb+srv://${username}:${pass}@${db}.nx26p.mongodb.net/shop?retryWrites=true&w=majority`)
         .then(client => {
-            console.log('Connected');
             _db=client.db()
             callback();
         })
