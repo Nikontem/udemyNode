@@ -1,6 +1,8 @@
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
+const {validationResult} = require('express-validator');
+
 
 const User = require('../models/User');
 
@@ -16,10 +18,28 @@ exports.getLogin = (req, res) => {
     res.render('auth/login', {
         path: '/login',
         pageTitle: 'Login',
+        oldInput:{
+            email: '',
+            password: '',
+        }
     });
 }
 
 exports.postLogin = (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).render('auth/login', {
+            path: '/login',
+            pageTitle: 'Login',
+            errorMessage: errors.array()[0].msg,
+            oldInput:{
+                email: req.body.email,
+                password: req.body.password,
+            }
+        });
+    }
+
     User.findOne({email: req.body.email})
         .then(user => {
             if (user) {
@@ -46,45 +66,59 @@ exports.getSignup = (req, res) => {
     res.render('auth/signup', {
         path: '/signup',
         pageTitle: 'Signup',
-    })
+        oldInput: {
+            email: '',
+            password: '',
+            confirmPassword: ''
+        }
+    });
 }
 
 exports.postSignup = (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
-    const confirmPassword = req.body.confirmPassword;
+    const errors = validationResult.error;
+
+    if (!errors.isEmpty()) {
+        req.flash('error', errors.array()[0].msg);
+        return res.status(422).render('auth/signup', {
+            path: '/signup',
+            pageTitle: 'Signup',
+            oldInput:{
+                email: email,
+                password: password,
+                confirmPassword: req.body.confirmPassword
+            }
+        })
+    }
+
     const mailOptions = {
         from: "ntemkas_eurocamp@hotmail.com",
         to: email,
         subject: "Sending New Email using Node.js",
         html: "<h1>Hello Man, Guess who just sent you an email!</h1>",
     };
-    User.findOne({email: email})
-        .then(user => {
-            if (!user && password === confirmPassword) {
-                return bcrypt.hash(password, 12)
-                    .then(hashedPassword => {
-                        const user = new User({
-                            email: email,
-                            password: hashedPassword,
-                            cart: {items: [], total: 0}
-                        });
-                        return user.save();
-                    })
-                    .then(() => {
-                        res.redirect('/login');
-                        return transporter.sendMail(mailOptions, function (error, info) {
-                            if (error) {
-                                console.error(error);
-                            } else {
-                                console.info("Email Sent:" + info.response);
-                            }
-                        })
-                    })
-                    .catch(error => console.error(error));
-            }
-            return res.redirect('/signup')
-        });
+
+    return bcrypt.hash(password, 12)
+        .then(hashedPassword => {
+            const user = new User({
+                email: email,
+                password: hashedPassword,
+                cart: {items: [], total: 0}
+            });
+            return user.save();
+        })
+        .then(() => {
+            res.redirect('/login');
+            return transporter.sendMail(mailOptions, function (error, info) {
+                if (error) {
+                    console.error(error);
+                } else {
+                    console.info("Email Sent:" + info.response);
+                }
+            })
+        })
+        .catch(error => console.error(error));
 
 }
 
@@ -184,7 +218,7 @@ exports.postResetPassword = (req, res, next) => {
         );
 }
 
-exports.getLogout = (req, res) => {
+exports.postLogout = (req, res) => {
     req.session.destroy((err) => {
         if (err) console.error(err);
         res.redirect('/login');
