@@ -27,7 +27,7 @@
             <%}%>
         </ul>
         <ul class="main-header__item-list">
-            <% if(!isAuthenticated) { %>
+            <% if(!isAuthenticated) {%>
             <li class="main-header__item">
                 <a href="/login" class="<%= path === '/login' ? 'active' : '' %>">Login</a>
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -36,9 +36,9 @@
                     <a href="/signup" class="<%= path === '/signup' ? 'active' : '' %>">Signup</a>
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 </li>
-            <%}else {%>
+            <%}else { %>
                 <li class="main-header__item">
-                    <a href="/login">Logout</a>
+                    <a href="/logout">Logout</a>
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 </li>
             <%}%>

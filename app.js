@@ -48,6 +48,11 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
+    let message = req.flash('error');
+    console.log(message);
+    message = message.length > 0 ? message[0] : null;
+
+    res.locals.errorMessage = message;
     res.locals.isAuthenticated = req.session.isAuthenticated;
     res.locals.csrfToken = req.csrfToken();
     next();

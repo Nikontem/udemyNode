@@ -5,7 +5,6 @@ exports.getAddProduct = (req, res) => {
         pageTitle: 'Add Product',
         path: '/admin/add-product',
         editing: false,
-        isAuthenticated: req.session.isAuthenticated
     });
 };
 
@@ -28,13 +27,15 @@ exports.postAddProduct = (req, res) => {
 
 exports.getEditProduct = (req, res) => {
     const prodId = req.params.productId;
-    Product.findById(prodId).then(product => {
+    Product.findOne({_id: req.body.productId, userId: req.session.userId}).then(product => {
+        if(!product){
+            return res.redirect('/');
+        }
         res.render('admin/edit-product', {
             pageTitle: 'Edit Product',
             path: '/admin/edit-product',
             editing: true,
             product: product,
-            isAuthenticated: req.session.isAuthenticated
         });
     }).catch(err => console.error(err));
 
@@ -42,9 +43,11 @@ exports.getEditProduct = (req, res) => {
 };
 
 exports.postEditProduct = (req, res) => {
-    const _id = req.body.productId;
 
-    Product.findById(_id).then(product => {
+    Product.findOne({_id: req.body.productId, userId: req.session.userId}).then(product => {
+        if(!product){
+            return res.redirect('/');
+        }
         product.title = req.body.title;
         product.imageUrl = req.body.imageUrl;
         product.price = req.body.price;
@@ -56,18 +59,17 @@ exports.postEditProduct = (req, res) => {
 
 exports.getDeleteProduct = (req, res) => {
     const prodId = req.body.productId;
-    Product.findByIdAndDelete(prodId)
+    Product.findOneAndDelete({_id: prodId, userId: req.session.userId})
         .then(() => {
-            res.redirect("/");
+            res.redirect("/admin/products");
         })
 }
 exports.getProducts = (req, res) => {
-    Product.find().then(products => {
+    Product.find({userId: req.session.userId}).then(products => {
         res.render('admin/products', {
             prods: products,
             pageTitle: 'Admin Products',
             path: '/admin/products',
-            isAuthenticated: req.session.isAuthenticated
         });
     });
 };

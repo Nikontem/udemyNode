@@ -7,7 +7,6 @@ exports.getProducts = (req, res) => {
             prods: products,
             pageTitle: 'All Products',
             path: '/products',
-            isAuthenticated: req.session.isAuthenticated
         });
     });
 };
@@ -19,7 +18,6 @@ exports.getProduct = (req, res) => {
             product: product,
             pageTitle: 'Product Details',
             path: '/products',
-            isAuthenticated: req.session.isAuthenticated
         });
     });
 };
@@ -31,7 +29,6 @@ exports.getIndex = (req, res) => {
             prods: products,
             pageTitle: 'Shop',
             path: '/',
-            isAuthenticated: req.session.isAuthenticated,
             csrfToken: req.csrfToken()
         });
     });
@@ -77,7 +74,6 @@ exports.getOrders = (req, res) => {
                 path:'/orders',
                 orders:orders,
                 pageTitle: "Orders",
-                isAuthenticated: req.session.isAuthenticated
             })
         })
         .catch(err => console.error(err));
