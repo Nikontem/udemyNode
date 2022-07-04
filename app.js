@@ -49,7 +49,7 @@ app.use((error, req, res, next) => {
 })
 
 mongoose
-    .connect(dbConnString,{ ssl: true, sslCA: `${__dirname}\\thessfw1.ots.gr.crt` })
+    .connect(dbConnString)
     .then(() => {
         console.log('connected');
         app.listen(8080);

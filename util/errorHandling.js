@@ -8,12 +8,10 @@ exports.commonErrorHandling = (err, next) => {
     next(err);
 }
 
-exports.resourceNotFound = (resource, next, resourceType) => {
+exports.resourceNotFound = (resource, next, resourceType, customMessage) => {
     if (!resource) {
-        const err = {
-            statusCode: 404,
-            statusMessage: `${resourceType} not found`
-        }
+        const err = new Error(customMessage || `${resourceType} not found`);
+        err.statusCode = 404;
         throw err;
     }
 }

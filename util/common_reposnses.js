@@ -1,3 +1,3 @@
-exports.operationSuccess = (res, result) =>{
-    return res.status(201).json(result);
+exports.operationSuccess = (res, result, status) =>{
+    return res.status(status || 200).json(result);
 }
