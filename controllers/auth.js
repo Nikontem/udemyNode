@@ -37,5 +37,6 @@ exports.login = async (req, res, next) => {
         return operationSuccess(res, {token: token, userId: user._id.toString()});
     }catch(error){
         commonErrorHandling(error, next);
+        return error;
     }
 };

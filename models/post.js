@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const User = require('./user')
 
 const postSchema = new Schema({
         title: {
@@ -22,5 +23,12 @@ const postSchema = new Schema({
     },
     {timestamps: true}
 )
+
+postSchema.post('findOneAndDelete', async document => {
+    const postId = document._id;
+    await User.updateMany({posts: {$in: [postId]}},
+        {$pull: {posts: postId}})
+
+} )
 
 module.exports = mongoose.model('Post', postSchema);

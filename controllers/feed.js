@@ -48,7 +48,6 @@ exports.createPost = async (req, res, next) => {
         await post.save();
         const user = await User.findById(req.userId);
         resourceNotFound(user, next, 'User', 'Please Authenticate');
-        console.log(user);
         user.posts.push(post);
         await user.save()
         return operationSuccess(res, {
@@ -88,6 +87,7 @@ exports.editPost = async (req, res, next) => {
 exports.deletePost = async (req, res, next) => {
     try {
         const post = await Post.findOneAndDelete({_id: req.params.postId})
+        post.remove();
         check_permission(req.userId.toString(), post.creator.toString());
         return operationSuccess(res, {message: 'Post deleted successfully'});
     } catch (error) {
@@ -127,6 +127,6 @@ exports.updateStatus = async (req, res, next) => {
 const clearImage = filePath => {
     filePath = path.join(__dirname, '..', filePath);
     fs.unlink(filePath, err => {
-        console.log(err);
+        console.error(err);
     })
 }
