@@ -1,7 +1,12 @@
-const express = require('express');
 const path = require('path');
+const fs = require('fs');
+
+const express = require('express');
 const mongoose = require('mongoose');
 const multer = require('multer');
+const helmet = require('helmet');
+const compression = require('compression');
+const morgan = require('morgan');
 const { v4: uuidv4} = require('uuid');
 
 const feedRoutes = require('./routes/feed');
@@ -10,7 +15,6 @@ const authRoutes = require('./routes/auth');
 const {dbConnString} = require('./util/env_params');
 
 const app = express();
-
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -30,6 +34,15 @@ const filter = (req, file, cb) => {
     }
 }
 
+const accessLogStrem = fs.createWriteStream(
+    path.join(__dirname,'access.log'),
+    {flags: 'a'}
+);
+
+app.use(helmet());
+app.use(compression());
+app.use(morgan('dev', { skip:function(req, res){return res.status.Code<400}}));
+app.use(morgan('combined', { stream: accessLogStrem}));
 app.use(express.json());
 app.use(multer({storage: storage, fileFilter: filter}).single('image'));
 app.use('/images', express.static(path.join(__dirname, 'images')));
