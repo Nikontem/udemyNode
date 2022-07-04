@@ -5,6 +5,7 @@ const multer = require('multer');
 const { v4: uuidv4} = require('uuid');
 
 const feedRoutes = require('./routes/feed');
+const authRoutes = require('./routes/auth');
 
 const {dbConnString} = require('./util/env_params');
 
@@ -22,7 +23,6 @@ const storage = multer.diskStorage({
 
 const filter = (req, file, cb) => {
     const acceptedMimeTypes = ['image/png', 'image/jpg', 'image/jpeg'];
-    console.log(acceptedMimeTypes.includes(file.mimetype));
     if (acceptedMimeTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
@@ -41,14 +41,15 @@ app.use((req, res, next) => {
 });
 
 app.use('/feed', feedRoutes);
+app.use('/auth', authRoutes);
 
 app.use((error, req, res, next) => {
     console.log(error);
-    res.status(error.statusCode).json({message: error.statusMessage});
+    res.status(error.statusCode).json({message: error.statusMessage, data: error.data});
 })
 
 mongoose
-    .connect(dbConnString)
+    .connect(dbConnString,{ ssl: true, sslCA: `${__dirname}\\thessfw1.ots.gr.crt` })
     .then(() => {
         console.log('connected');
         app.listen(8080);

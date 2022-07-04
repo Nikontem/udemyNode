@@ -1,16 +1,26 @@
 const fs = require('fs');
 const path = require('path');
-const {validationResult} = require('express-validator');
 
 const Post = require('../models/post');
 
-const {commonErrorHandling, resourceNotFound, missingData} = require('../util/errorHandling');
+const {throwValidationErrors, commonErrorHandling, resourceNotFound, missingData} = require('../util/errorHandling');
+const {operationSuccess} = require('../util/common_reposnses');
 
 exports.getPosts = (req, res, next) => {
-    Post.find()
+    const page = req.query.page || 1;
+    const perPage = 2;
+    let total;
+    Post.find().countDocuments()
+        .then(count => {
+            totalItems = count;
+            return Post.find()
+                .skip((page - 1)* perPage)
+                .limit(perPage);
+        })
         .then(posts => {
-            res.status(200).json({
-                posts: posts
+            operationSuccess(res,{
+                posts: posts,
+                totalItems: total
             });
         })
         .catch(error=> commonErrorHandling(error,next))
@@ -18,10 +28,7 @@ exports.getPosts = (req, res, next) => {
 };
 
 exports.createPost = (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        missingData('Validation failed, entered data is incorrect.');
-    }
+    throwValidationErrors(req);
     if(!req.file){
         missingData('No Image Provided');
     }
@@ -39,7 +46,7 @@ exports.createPost = (req, res, next) => {
 
     post.save()
         .then(result => {
-            res.status(201).json({
+            operationSuccess(res,{
                 message: 'Post created!',
                 post: result
             });
@@ -50,10 +57,7 @@ exports.createPost = (req, res, next) => {
 };
 
 exports.editPost = (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        missingData('Validation failed, entered data is incorrect.');
-    }
+    throwValidationErrors(req);
     if(!req.file){
         missingData('No Image Provided');
     }
@@ -70,7 +74,7 @@ exports.editPost = (req, res, next) => {
             return post.save();
         })
         .then((result) =>{
-            res.status(201).json({
+            operationSuccess(res,{
                 message: 'Post update!',
                 post: result
             });
@@ -83,7 +87,7 @@ exports.editPost = (req, res, next) => {
 exports.deletePost = (req, res, next) =>{
     Post.findOneAndDelete({_id: req.params.postId})
         .then(result => {
-            return res.status(200).json({message:'Post deleted successfully'});
+            return operationSuccess(res,{message:'Post deleted successfully'});
         })
         .catch(error =>{
             commonErrorHandling(error,next);
@@ -95,7 +99,7 @@ exports.getPost = (req, res, next)=> {
         .then(post => {
             resourceNotFound(post,next, 'Post');
             post.imageUrl = "/"+ post.imageUrl;
-            return res.status(200).json({post:post});
+            return operationSuccess(res,{post:post});
         })
         .catch(err=>{
             commonErrorHandling(err, next);
