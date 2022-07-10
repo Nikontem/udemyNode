@@ -34,14 +34,14 @@ const filter = (req, file, cb) => {
     }
 }
 
-const accessLogStrem = fs.createWriteStream(
+const accessLogStream = fs.createWriteStream(
     path.join(__dirname,'access.log'),
     {flags: 'a'}
 );
 
 app.use(helmet());
 app.use(compression());
-app.use(morgan('dev', { skip:function(req, res){return res.status.Code<400}}));
+app.use(morgan('dev', { skip:function(req, res){return res.status.Code<400 }}));
 app.use(morgan('combined', { stream: accessLogStrem}));
 app.use(express.json());
 app.use(multer({storage: storage, fileFilter: filter}).single('image'));
